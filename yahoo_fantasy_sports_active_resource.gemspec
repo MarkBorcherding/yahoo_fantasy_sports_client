@@ -27,4 +27,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "interactive_editor"
   spec.add_development_dependency "awesome_print"
   spec.add_development_dependency "wirb"
+  spec.add_development_dependency "highline"
+  spec.add_development_dependency "debugger"
 end
