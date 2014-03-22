@@ -15,15 +15,13 @@ options = {
   :authorize_path       => '/oauth/v2/request_auth'
 }
 
-consumer=OAuth::Consumer.new(
+@consumer=OAuth::Consumer.new(
   ENV['consumer_key'],
   ENV['consumer_secret'],
   options)
 
-access_token_text = IO.read('.access_token') if File.exist? '.access_token'
-access_secret_text = IO.read('.access_secret') if File.exist? '.access_secret'
-unless access_token_text && access_secret_text
-  request_token = consumer.get_request_token
+def get_access_token
+  request_token = @consumer.get_request_token
   puts "Visit #{request_token.authorize_url}"
   access_token_text = ask('Enter the token:')
   @access_token = request_token.get_access_token :oauth_verifier => access_token_text
@@ -31,16 +29,25 @@ unless access_token_text && access_secret_text
   File.open('.access_token','w') { |f| f.write(@access_token.token) }
   FileUtils.rm '.access_secret', force: true
   File.open('.access_secret','w') { |f| f.write(@access_token.secret) }
+end
+
+access_token_text = IO.read('.access_token') if File.exist? '.access_token'
+access_secret_text = IO.read('.access_secret') if File.exist? '.access_secret'
+unless access_token_text && access_secret_text
+  get_access_token
 else
-  @access_token = OAuth::AccessToken.new(consumer, access_token_text, access_secret_text)
+  @access_token = OAuth::AccessToken.new(@consumer, access_token_text, access_secret_text)
 end
 
 
+require 'nokogiri'
 def get(url)
   response = @access_token.get "http://fantasysports.yahooapis.com#{url}"
-  ap response.body
+  doc = Nokogiri.XML(response.body, &:noblanks)
+  puts doc
   puts "*" * 20
 end
+
 
 get "/fantasy/v2/users;use_login=1/games;game_keys=mlb"
 
@@ -49,5 +56,4 @@ get "/fantasy/v2/game/328"
 get "/fantasy/v2/users;use_login=1/games;game_keys=328/leagues"
 
 get "/fantasy/v2/league/328.l.46539/players"
-
 
