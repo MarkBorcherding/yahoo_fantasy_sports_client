@@ -13,6 +13,7 @@ At this time, this is just playing around with the idea.
 ```
 consumer_key='whatever it says'
 consumer_secret='on the developer console'
+```
 
 ## Usage
 
