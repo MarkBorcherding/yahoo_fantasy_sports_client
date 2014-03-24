@@ -40,24 +40,48 @@ else
 end
 
 
-def get(url)
-  response = @access_token.get "http://fantasysports.yahooapis.com#{url}"
-  response.body
-rescue OAuth::Problem => e
-  puts e
-  FileUtils.rm '.access_token', force: true
-  FileUtils.rm '.access_secret', force: true
+#def get(url)
+#  response = @access_token.get "http://fantasysports.yahooapis.com#{url}"
+#  response.body
+#rescue OAuth::Problem => e
+#  puts e
+#  FileUtils.rm '.access_token', force: true
+#  FileUtils.rm '.access_secret', force: true
+#end
+#
+
+#get "/fantasy/v2/users;use_login=1/games;game_keys=mlb"
+#
+#get "/fantasy/v2/game/328"
+#
+#get "/fantasy/v2/users;use_login=1/games;game_keys=328/leagues"
+#
+#puts get "/fantasy/v2/league/328.l.46539/players"
+#
+
+class Resource
+  def self.access_token=(value)
+    @@access_token = value
+  end
+
+  def self.access_token
+    @@access_token
+  end
+
+  def self.get(url)
+    response = access_token.get "http://fantasysports.yahooapis.com#{url}"
+    response.body
+  rescue OAuth::Problem => e
+    puts e
+    FileUtils.rm '.access_token', force: true
+    FileUtils.rm '.access_secret', force: true
+    exit
+  rescue
+    puts 'who knows'
+    exit
+  end
 end
-
-
-get "/fantasy/v2/users;use_login=1/games;game_keys=mlb"
-
-get "/fantasy/v2/game/328"
-
-get "/fantasy/v2/users;use_login=1/games;game_keys=328/leagues"
-
-puts get "/fantasy/v2/league/328.l.46539/players"
-
+Resource.access_token = @access_token
 
 require 'happymapper'
 class Game
@@ -71,6 +95,25 @@ class Game
   element :season, String
 end
 
+class League
+  include HappyMapper
+  element :league_key, String
+  element :league_id, Integer
+  element :name, String
+  element :url, String
+  element :draft_status, String
+  element :num_teams, Integer
+  element :edit_key, Integer
+  element :league_update_timestamp, String
+  element :scoreing_type, String
+  element :current_week, Integer
+  element :start_week, Integer
+  element :end_week, Integer
+  element :is_finished, Integer
+
+   # <weekly_deadline/>
+end
+
 class Name
   include HappyMapper
   element :full, String
@@ -78,36 +121,47 @@ class Name
   element :last, String
 end
 
-class Player
+class Ownership
+  include HappyMapper
+  element :ownership_type, String
+end
+
+class Player < Resource
   include HappyMapper
   element :player_key, String
   element :player_id, Integer
-  element  :name, Name
+  has_one :name, Name
   element :postition_type, String
-#    <editorial_player_key>mlb.p.6419</editorial_player_key>
-#    <editorial_team_key>mlb.t.22</editorial_team_key>
-#    <editorial_team_full_name>Philadelphia Phillies</editorial_team_full_name>
-#    <editorial_team_abbr>Phi</editorial_team_abbr>
-#    <uniform_number>11</uniform_number>
-#    <display_position>SS</display_position>
-#    <headshot>
-#     <url>http://l.yimg.com/iu/api/res/1.2/5AqpT7bBaHmFvXGz4LczCQ--/YXBwaWQ9eXZpZGVvO2NoPTg2MDtjcj0xO2N3PTY1OTtkeD0xO2R5PTE7Zmk9dWxjcm9wO2g9NjA7cT0xMDA7dz00Ng--/http://l.yimg.com/j/assets/i/us/sp/v/mlb/players_l/20130405/6419.1.jpg</url>
-#     <size>small</size>
-#    </headshot>
-#    <image_url>http://l.yimg.com/iu/api/res/1.2/5AqpT7bBaHmFvXGz4LczCQ--/YXBwaWQ9eXZpZGVvO2NoPTg2MDtjcj0xO2N3PTY1OTtkeD0xO2R5PTE7Zmk9dWxjcm9wO2g9NjA7cT0xMDA7dz00Ng--/http://l.yimg.com/j/assets/i/us/sp/v/mlb/players_l/20130405/6419.1.jpg</image_url>
-#    <is_undroppable>0</is_undroppable>
-#    <position_type>B</position_type>
-#    <eligible_positions>
-#     <position>SS</position>
-#     <position>Util</position>
-#    </eligible_positions>
-#    <has_player_notes>1</has_player_notes>
-#    <has_recent_player_notes>1</has_recent_player_notes>
-#   </player>
+  has_one :ownership, Ownership
+  def self.get_page(page, page_size=25)
+    xml = get "/fantasy/v2/league/328.l.46539/players/ownership;count=#{page_size};start=#{page * page_size}"
+    puts xml
+    Player.parse xml
+  end
 end
 
-xml = get "/fantasy/v2/league/328.l.46539/players"
-g = Player.parse xml
-puts g.inspect
+page=0
+print 'Players'
+pp = Player.get_page(page)
+debugger
+
+File.open "players.txt", "w" do |f|
+  while (pp = Player.get_page(page)).count > 0 do
+    print '.'
+    page += 1
+
+    pp.each do |p|
+      f.write p.name.full
+      f.write " , "
+      f.write p.ownership.ownership_type
+      f.write "\n"
+    end
+  end
+end
 
 
+debugger
+
+
+
+true
