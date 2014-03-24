@@ -1,22 +1,22 @@
 # Yahoo Fantasy Sports Active Resource
 
-An ActiveResource client for Yahoo Fantasy Sports APIs.
+A Ruby client for Yahoo Fantasy Sports APIs.
+
+At this time, this is just playing around with the idea.
 
 ## Installation
 
-Add this line to your application's Gemfile:
+1. Clone the repo.
+2. Setup your application on the [Yahoo Developer Network](http://developer.apps.yahoo.com).
+3. Add you Consumer Key and Consumer Secret to a `.env` file that looks something like this:
 
-    gem 'yahoo_fantasy_sports_active_resource'
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install yahoo_fantasy_sports_active_resource
+```
+consumer_key='whatever it says'
+consumer_secret='on the developer console'
 
 ## Usage
+
+Run `ruby consumer.rb`.
 
 TODO: Write usage instructions here
 
