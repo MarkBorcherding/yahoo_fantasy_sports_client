@@ -40,7 +40,6 @@ else
 end
 
 
-require 'nokogiri'
 def get(url)
   response = @access_token.get "http://fantasysports.yahooapis.com#{url}"
   response.body
