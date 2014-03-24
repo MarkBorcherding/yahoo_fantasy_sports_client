@@ -43,9 +43,11 @@ end
 require 'nokogiri'
 def get(url)
   response = @access_token.get "http://fantasysports.yahooapis.com#{url}"
-  doc = Nokogiri.XML(response.body, &:noblanks)
-  puts doc
-  puts "*" * 20
+  response.body
+rescue OAuth::Problem => e
+  puts e
+  FileUtils.rm '.access_token', force: true
+  FileUtils.rm '.access_secret', force: true
 end
 
 
@@ -55,5 +57,58 @@ get "/fantasy/v2/game/328"
 
 get "/fantasy/v2/users;use_login=1/games;game_keys=328/leagues"
 
-get "/fantasy/v2/league/328.l.46539/players"
+puts get "/fantasy/v2/league/328.l.46539/players"
+
+
+require 'happymapper'
+class Game
+  include HappyMapper
+  element :game_key, Integer
+  element :game_id, Integer
+  element :name, String
+  element :code, String
+  element :type, String
+  element :url, String
+  element :season, String
+end
+
+class Name
+  include HappyMapper
+  element :full, String
+  element :first, String
+  element :last, String
+end
+
+class Player
+  include HappyMapper
+  element :player_key, String
+  element :player_id, Integer
+  element  :name, Name
+  element :postition_type, String
+#    <editorial_player_key>mlb.p.6419</editorial_player_key>
+#    <editorial_team_key>mlb.t.22</editorial_team_key>
+#    <editorial_team_full_name>Philadelphia Phillies</editorial_team_full_name>
+#    <editorial_team_abbr>Phi</editorial_team_abbr>
+#    <uniform_number>11</uniform_number>
+#    <display_position>SS</display_position>
+#    <headshot>
+#     <url>http://l.yimg.com/iu/api/res/1.2/5AqpT7bBaHmFvXGz4LczCQ--/YXBwaWQ9eXZpZGVvO2NoPTg2MDtjcj0xO2N3PTY1OTtkeD0xO2R5PTE7Zmk9dWxjcm9wO2g9NjA7cT0xMDA7dz00Ng--/http://l.yimg.com/j/assets/i/us/sp/v/mlb/players_l/20130405/6419.1.jpg</url>
+#     <size>small</size>
+#    </headshot>
+#    <image_url>http://l.yimg.com/iu/api/res/1.2/5AqpT7bBaHmFvXGz4LczCQ--/YXBwaWQ9eXZpZGVvO2NoPTg2MDtjcj0xO2N3PTY1OTtkeD0xO2R5PTE7Zmk9dWxjcm9wO2g9NjA7cT0xMDA7dz00Ng--/http://l.yimg.com/j/assets/i/us/sp/v/mlb/players_l/20130405/6419.1.jpg</image_url>
+#    <is_undroppable>0</is_undroppable>
+#    <position_type>B</position_type>
+#    <eligible_positions>
+#     <position>SS</position>
+#     <position>Util</position>
+#    </eligible_positions>
+#    <has_player_notes>1</has_player_notes>
+#    <has_recent_player_notes>1</has_recent_player_notes>
+#   </player>
+end
+
+xml = get "/fantasy/v2/league/328.l.46539/players"
+g = Player.parse xml
+puts g.inspect
+
 
