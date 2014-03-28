@@ -6,6 +6,8 @@ require 'awesome_print'
 Dotenv.load
 require 'fileutils'
 
+require 'yahoo_fantasy_sports_active_resource'
+
 options = {
   :site                 => 'https://api.login.yahoo.com',
   :scheme               => :query_string,
@@ -59,115 +61,9 @@ end
 #puts get "/fantasy/v2/league/328.l.46539/players"
 #
 
-class Resource
-  def self.access_token=(value)
-    @@access_token = value
-  end
-
-  def self.access_token
-    @@access_token
-  end
-
-  def self.get(url)
-    response = access_token.get "http://fantasysports.yahooapis.com#{url}"
-    response.body
-  rescue OAuth::Problem => e
-    puts e
-    FileUtils.rm '.access_token', force: true
-    FileUtils.rm '.access_secret', force: true
-    exit
-  rescue
-    puts 'who knows'
-    exit
-  end
-end
 Resource.access_token = @access_token
 
 require 'happymapper'
-class Game
-  include HappyMapper
-  element :game_key, Integer
-  element :game_id, Integer
-  element :name, String
-  element :code, String
-  element :type, String
-  element :url, String
-  element :season, String
-end
-
-class Name
-  include HappyMapper
-  element :full, String
-  element :first, String
-  element :last, String
-end
-
-class Ownership
-  include HappyMapper
-  element :ownership_type, String
-end
-
-class Player < Resource
-  include HappyMapper
-  element :player_key, String
-  element :player_id, Integer
-  has_one :name, Name
-  element :postition_type, String
-  has_one :ownership, Ownership
-  def self.get_page(page, page_size=25)
-    debugger
-    xml = get "/fantasy/v2/league/328.l.46539/players/ownership;count=#{page_size};start=#{page * page_size}"
-    puts xml
-    debugger
-    Player.parse xml
-  end
-
-  def self.all
-    xml = get "/fantasy/v2/league/328.l.46539/players/ownership;count=10000;"
-    Player.parse xml
-  end
-end
-
-class DraftResult < Resource
-  include HappyMapper
-  element :pick, Integer
-  element :round, Integer
-  element :team, String
-  element :player, String
-end
-
-class DraftResults < Resource
-  include HappyMapper
-  has_many :draft_result, DraftResult
-end
-
-class League < Resource
-  include HappyMapper
-  element :league_key, String
-  element :league_id, Integer
-  element :name, String
-  element :url, String
-  element :draft_status, String
-  element :num_teams, Integer
-  element :edit_key, Integer
-  element :league_update_timestamp, String
-  element :scoreing_type, String
-  element :current_week, Integer
-  element :start_week, Integer
-  element :end_week, Integer
-  element :is_finished, Integer
-  has_one :draft_results, DraftResults
-
-   # <weekly_deadline/>
-  #
-  def self.draft_results
-    xml = get "/fantasy/v2/league/328.l.46539/draftresults"
-    puts xml
-    debugger
-    League.parse(xml, single: true ).draft_results
-  end
-
-end
 
 dr = League.draft_results
 
