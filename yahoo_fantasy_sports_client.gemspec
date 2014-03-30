@@ -1,15 +1,15 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'yahoo_fantasy_sports_active_resource/version'
+require 'yahoo_fantasy_sports_client/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "yahoo_fantasy_sports_active_resource"
-  spec.version       = YahooFantasySportsActiveResource::VERSION
+  spec.name          = "yahoo_fantasy_sports_client"
+  spec.version       = YahooFantasySportsClient::VERSION
   spec.authors       = ["Mark Borcherding"]
   spec.email         = ["markborcherding@gmail.com"]
-  spec.description   = %q{An ActiveResource library for Yahoo Fantasy Sports APIs}
-  spec.summary       = %q{An ActiveResource library for Yahoo Fantasy Sports APIs}
+  spec.description   = %q{A client library for talking to Yahoo Fantasy Sports APIs}
+  spec.summary       = %q{A client library for talking to Yahoo Fantasy Sports APIs}
   spec.homepage      = ""
   spec.license       = "MIT"
 

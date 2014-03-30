@@ -6,7 +6,7 @@ require 'awesome_print'
 Dotenv.load
 require 'fileutils'
 
-require 'yahoo_fantasy_sports_active_resource'
+require 'yahoo_fantasy_sports_client'
 
 options = {
   :site                 => 'https://api.login.yahoo.com',
@@ -61,36 +61,10 @@ end
 #puts get "/fantasy/v2/league/328.l.46539/players"
 #
 
-Resource.access_token = @access_token
+YahooFantasySportsClient::Resource.access_token = @access_token
 
-require 'happymapper'
 
-dr = League.draft_results
-
-debugger
-
-page=0
-print 'Players'
-pp = Player.get_page(page)
-debugger
-
-File.open "players.txt", "w" do |f|
-  while (pp = Player.get_page(page)).count > 0 do
-    print '.'
-    page += 1
-
-    pp.each do |p|
-      f.write p.name.full
-      f.write " , "
-      f.write p.ownership.ownership_type
-      f.write "\n"
-    end
-  end
-end
-
+dr = YahooFantasySportsClient::League.draft_results
 
 debugger
-
-
-
 true
