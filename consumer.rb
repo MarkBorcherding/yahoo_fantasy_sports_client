@@ -42,17 +42,20 @@ else
 end
 
 
-#def get(url)
-#  response = @access_token.get "http://fantasysports.yahooapis.com#{url}"
-#  response.body
-#rescue OAuth::Problem => e
-#  puts e
-#  FileUtils.rm '.access_token', force: true
-#  FileUtils.rm '.access_secret', force: true
-#end
-#
 
-#get "/fantasy/v2/users;use_login=1/games;game_keys=mlb"
+
+def get(url)
+  response = @access_token.get "http://fantasysports.yahooapis.com#{url}"
+  response.body
+rescue OAuth::Problem => e
+  puts e
+  FileUtils.rm '.access_token', force: true
+  FileUtils.rm '.access_secret', force: true
+end
+
+
+r = get "/fantasy/v2/users;use_login=1/games;game_keys=mlb"
+puts r
 #
 #get "/fantasy/v2/game/328"
 #

@@ -4,7 +4,7 @@ module YahooFantasySportsClient
   describe Player do
 
     describe 'getting players' do
-
+      it 'gets the player'
     end
 
 
