@@ -54,8 +54,10 @@ rescue OAuth::Problem => e
 end
 
 
-r = get "/fantasy/v2/users;use_login=1/games;game_keys=mlb"
-puts r
+YahooFantasySportsClient::Game.access_token = @access_token
+games = YahooFantasySportsClient::Game.all_for_user
+debugger
+
 #
 #get "/fantasy/v2/game/328"
 #
