@@ -23,5 +23,10 @@ module YahooFantasySportsClient
       puts 'who knows'
       exit
     end
+
+    def self.base_url
+      "http://fantasysports.yahooapis.com/fantasy/v2/"
+    end
+
   end
 end
